@@ -5,7 +5,6 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 5000;
 
-
 app.use(cors());
 app.use(express.json());
 
@@ -18,9 +17,9 @@ const client = new MongoClient(uri, { useUnifiedTopology: true });
 app.get('/api/webdata', async (req, res) => {
   try {
     await client.connect();
-    const database = client.db('berenjenawebs'); // Reemplaza con el nombre de tu base de datos
-    const collection = database.collection('webs'); // Reemplaza con el nombre de tu colección
-    const webData = await collection.find({}).toArray();
+    const database    = client.db('berenjenawebs'); // Reemplaza con el nombre de tu base de datos
+    const collection  = database.collection('webs'); // Reemplaza con el nombre de tu colección
+    const webData     = await collection.find({}).toArray();
     res.json(webData);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener datos de la base de datos' });
@@ -45,7 +44,7 @@ app.get('/search', async (req, res) => {
       additionalResponses.push(newPokemon);
     }
     res.json(additionalResponses);
-
+    
   } catch (error) {
     console.error(error);
     res.status(500).send('Error en la búsqueda.'+error);

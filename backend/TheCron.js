@@ -59,56 +59,79 @@ const sitiosWeb = [
 
 async function capturarInformacionSitio(sitio, indice) {
   const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+  const page    = await browser.newPage();
   await page.setViewport({ width: 1880, height: 1080 });
-  
+  const webUrl = sitio;
+
+  //Screenshot
   try {
-    const webUrl = sitio;
     await page.goto(webUrl);
-    console.log(`Imprimiendo la imagen`);
     const screenshotPath = `./screenshots/imagen${indice}.png`;
     await page.screenshot({ path: screenshotPath });
-    const pageTitle = await page.title();
-    console.log('Título de la página:', pageTitle);
-    const pageDescription = await page.$eval('meta[name="description"]', (element) =>
-      element.getAttribute('content')
-    );
-    console.log('Descripción del sitio web:', pageDescription);
-    
-    const webpageData = {
-      title: pageTitle,
-      url: webUrl,
-      content: pageDescription,
-      screenshotPath: screenshotPath
-    };
-
-    const uri = 'mongodb://localhost:27017'; // URI de conexión a tu servidor MongoDB
-    const client = new MongoClient(uri, { useUnifiedTopology: true });
-
-    try {
-      await client.connect();
-      const database = client.db('berenjenawebs'); // Reemplaza 'tu_basededatos' con el nombre de tu base de datos
-      const collection = database.collection('webs'); // Reemplaza 'tu_coleccion' con el nombre de tu colección
-      const result = await collection.insertOne(webpageData);
-      console.log(`Documento insertado con ID: ${result.insertedId}`);
-    } catch (err) {
-      console.error('Error al conectar a MongoDB:', err);
-    } finally {
-      await client.close();
-    }
   } catch (err) {
     console.log(`Error: ${err.message}`);
   } finally {
     await browser.close();
-    console.log(`Screenshot has been captured successfully`);
+    console.log(`Screenshot de ${sitio} has been captured successfully`);
   }
+  const pageTitle = await page.title();
+  const pageDescription = await page.$eval('meta[name="description"]', (element) =>
+    element.getAttribute('content')
+  );
+
+  const webpageData = {
+    title: pageTitle,
+    url: webUrl,
+    content: pageDescription,
+    screenshotPath: screenshotPath
+  };
+  
+  const uri = 'mongodb://localhost:27017'; // URI de conexión a tu servidor MongoDB
+  const client = new MongoClient(uri, { });
+  
+  try {
+    await client.connect();
+    const database   = client.db('berenjenawebs'); // Reemplaza 'tu_basededatos' con el nombre de tu base de datos
+    const collection = database.collection('webs'); // Reemplaza 'tu_coleccion' con el nombre de tu colección
+    const result     = await collection.insertOne(webpageData);
+    console.log(`Documento insertado con ID: ${result.insertedId}`);
+  } catch (err) {
+    console.error('Error al conectar a MongoDB:', err);
+  } finally {
+    await client.close();
+  }
+
+}
+
+async function existingWebpageF(webUrl) {
+  let existingWebpage = false;
+  try {
+    const uri        = 'mongodb://localhost:27017'; // URI de conexión a tu servidor MongoDB
+    const client     = await new MongoClient(uri, {});
+    await client.connect();
+    const database   = client.db('berenjenawebs');
+    const collection = database.collection('webs');
+    existingWebpage  = await collection.findOne({ url: webUrl });
+  } catch (err) {
+    console.log(`Error: ${err.message}`);
+  }
+  
+  let webpageExists = !!existingWebpage;
+  console.log("saraza4", existingWebpage, webpageExists);
+  return webpageExists;
 }
 
 //cron.schedule('* * * * *', () => {
-  console.log("Imprimiendo el cron...");
-  
+  //console.log("Imprimiendo el cron...");
   sitiosWeb.forEach(async (sitio, indice) => {
-    console.log(`Por imprimir: ${sitio}`);
-    await capturarInformacionSitio(sitio, indice);
+    console.log(`Analizar el sitio: ${sitio}`);
+    let existingWebpage = await existingWebpageF(sitio);
+    console.log(`BIEN, EXISTE EN LA BASE? : ${existingWebpage}`);
+    if (existingWebpage == false) {
+      console.log(`BIEN, NO EXISTE EN NUESTRA BASE DE DATOS: ${sitio}`);
+      await capturarInformacionSitio(sitio, indice);
+    } else {
+      console.log(`YA EXISTE EN LA BASE: ${existingWebpage}`);
+    }
   });
 //});
