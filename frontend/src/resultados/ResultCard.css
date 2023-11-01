@@ -1,0 +1,45 @@
+.result-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin: 10px;
+  background-color: #f9f9f9;
+  max-width: 300px; /* Ancho máximo de cada tarjeta */
+}
+
+.result-card:hover {
+  cursor: pointer;
+}
+
+.result-card-title {
+  background-color: #f0f0f0;
+  padding: 10px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: auto;
+}
+
+.result-title {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.result-description {
+  margin: 10px;
+  flex: 1;
+}
+
+.result-url {
+  color: #0077cc;
+  text-decoration: none;
+}
+
+.result-image {
+  width: 100%; /* Estilos específicos para la imagen */
+  height: auto; /* Para mantener la relación de aspecto original */
+  margin-right: 20px; /* Espacio entre la imagen y los detalles */
+  margin-bottom: 25px;
+}

@@ -1,0 +1,14 @@
+# Backend files
+backend/node_modules/
+backend/build/
+backend/dist/
+backend/coverage/
+backend/logs/
+backend/tmp/
+
+# Frontends files
+frontend/node_modules/
+
+# Archivos a ignorar
+.env
+.DS_Store
