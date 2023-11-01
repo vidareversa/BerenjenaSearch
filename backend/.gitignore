@@ -1,0 +1,11 @@
+# Directorios a ignorar
+node_modules/
+build/
+dist/
+coverage/
+logs/
+tmp/
+
+# Archivos a ignorar
+.env
+.DS_Store
