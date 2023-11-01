@@ -1,22 +1,36 @@
 import React, { useState } from 'react';
 import './Buscador.css'; // Importa el archivo CSS
+import ResultList from '../resultados/ResultList';
 
 function Buscador({ onSearch }) {
   const [busqueda, setBusqueda] = useState('');
+  const [resultado, setResultado] = useState(null);
+  const imagePath = process.env.PUBLIC_URL + '/images/BerenjenaSearch-icon.png';
 
   const handleChange = (e) => {
     setBusqueda(e.target.value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    //onSearch(busqueda);
+  const buscarDatos = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/webdata');
+      if (response.ok) {
+        const data = await response.json();
+        setResultado(data);
+      } else {
+        console.error('Error al obtener los datos de la API');
+      }
+    } catch (error) {
+      console.error('Error al realizar la solicitud:', error);
+    }
   };
-
+  
   return (
     <div className="buscador-container">
-      <img src={process.env.PUBLIC_URL + '/images/BerenjenaSearch-icon'} />
-      <form onSubmit={handleSubmit}>
+      <div className='header'>
+        <img src={imagePath} /><h1>Berenjena Search</h1>
+      </div>
+      <div className='search-input-container'>
         <input
           type="text"
           placeholder="Buscar..."
@@ -24,8 +38,13 @@ function Buscador({ onSearch }) {
           onChange={handleChange}
           className='search-input'
         />
-        <button type="submit" className='search-button'>Buscar</button>
-      </form>
+        <input type="button" value="Buscar" className='search-button' onClick={buscarDatos}/>
+      </div>
+      {resultado && (
+        <div>
+          <ResultList results={resultado} />  {/* Pasa los resultados como prop a ResultList */}
+        </div>
+      )}
     </div>
   );
 }

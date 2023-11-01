@@ -37,21 +37,7 @@
     width: 200px;
   }
 
-  .buscador-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-  }
-  
-  .google-logo-container {
-    cursor: pointer;
-  }
-  
-  .google-logo {
-    width: 120px;
-  }
-  
+
   .search-input-container {
     display: flex;
     align-items: center;
