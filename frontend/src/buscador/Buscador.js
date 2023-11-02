@@ -24,6 +24,12 @@ function Buscador({ onSearch }) {
       console.error('Error al realizar la solicitud:', error);
     }
   };
+
+  const handleInputKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      buscarDatos();
+    }
+  };
   
   return (
     <div className="buscador-container">
@@ -35,7 +41,8 @@ function Buscador({ onSearch }) {
           type="text"
           placeholder="Buscar..."
           value={busqueda}
-          onChange={handleChange}
+          onChange={(e) => setBusqueda(e.target.value)}
+          onKeyPress={handleInputKeyPress} 
           className='search-input'
         />
         <input type="button" value="Buscar" className='search-button' onClick={buscarDatos}/>
