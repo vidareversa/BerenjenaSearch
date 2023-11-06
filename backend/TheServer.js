@@ -17,12 +17,21 @@ const client = new MongoClient(uri, { useUnifiedTopology: true });
 app.get('/api/webdata', async (req, res) => {
   try {
     await client.connect();
-    const database    = client.db('berenjenawebs'); // Reemplaza con el nombre de tu base de datos
-    const collection  = database.collection('webs'); // Reemplaza con el nombre de tu colección
-    const webData     = await collection.find({}).toArray();
+    const database    = client.db('berenjena'); // Reemplaza con el nombre de tu base de datos
+    const collection  = database.collection('web'); // Reemplaza con el nombre de tu colección
+    //const webData     = await collection.find({}).toArray();
+    const searchString = req.query.busqueda;
+    const webData = await collection.find({
+      $or: [
+        { content: { $regex: searchString, $options: 'i' } },
+        { title: { $regex: searchString, $options: 'i' } },
+        { url: { $regex: searchString, $options: 'i' } }
+      ]
+    }).toArray();
     res.json(webData);
+    
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener datos de la base de datos' });
+    res.status(500).json({ error: 'Error al obtener datos de la base de datos: '+error });
   } finally {
     await client.close();
   }
@@ -35,7 +44,7 @@ app.get('/search', async (req, res) => {
     const response            = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=50&offset=0');
     const results             = response.data.results; // Los resultados están en response.data.results
     const additionalResponses = [];
-
+    
     for (const result of results) {
       const additionalResponse = await axios.get(result.url);
       let newPokemon = {

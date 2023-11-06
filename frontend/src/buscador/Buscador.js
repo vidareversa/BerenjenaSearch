@@ -7,13 +7,9 @@ function Buscador({ onSearch }) {
   const [resultado, setResultado] = useState(null);
   const imagePath = process.env.PUBLIC_URL + '/images/BerenjenaSearch-icon.png';
 
-  const handleChange = (e) => {
-    setBusqueda(e.target.value);
-  };
-
   const buscarDatos = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/webdata');
+      const response = await fetch(`http://localhost:5000/api/webdata?busqueda=${busqueda}`);
       if (response.ok) {
         const data = await response.json();
         setResultado(data);

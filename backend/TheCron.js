@@ -1,8 +1,8 @@
 const cron            = require('node-cron');
-const axios           = require('axios');
-const cheerio         = require('cheerio');
 const puppeteer       = require('puppeteer');
 const { MongoClient } = require('mongodb');
+const { EventEmitter } = require('events');
+EventEmitter.defaultMaxListeners = 15; // Puedes ajustar este número según tus necesidades
 
 const sitiosWeb = [
   'https://www.google.com',
@@ -58,49 +58,70 @@ const sitiosWeb = [
 ];
 
 async function capturarInformacionSitio(sitio, indice) {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ headless: "new", });
   const page    = await browser.newPage();
   await page.setViewport({ width: 1880, height: 1080 });
-  const webUrl = sitio;
+  const webUrl  = sitio;
+  let screenshotPath = '';
 
-  //Screenshot
   try {
-    await page.goto(webUrl);
-    const screenshotPath = `./screenshots/imagen${indice}.png`;
-    await page.screenshot({ path: screenshotPath });
+    try {
+      await page.goto(webUrl);
+      screenshotPath = `./screenshots/imagen${indice}.png`;
+      await page.screenshot({ path: screenshotPath });
+      console.log(`Screenshot de ${sitio} has been captured successfully`);
+      
+    } catch (err) {
+      console.log(`Error al capturar la imagen: ${err.message}`);
+      await page.close();
+      await browser.close();
+      return;
+    }
+
+    const pageTitle = await page.title();
+    const pageDescription = await page.$eval('meta[name="description"]', (element) =>
+      element.getAttribute('content')
+    );
+    
+    const webpageData = {
+      title: pageTitle,
+      url: webUrl,
+      content: pageDescription,
+      screenshotPath: screenshotPath
+    };
+    
+    //Mongo DB connect
+    const uri = 'mongodb://localhost:27017'; // URI de conexión a tu servidor MongoDB
+    const client = new MongoClient(uri, { });
+    await client.connect();
+    try {
+      const database   = client.db('berenjena'); // Reemplaza 'tu_basededatos' con el nombre de tu base de datos
+      const collection = database.collection('web'); // Reemplaza 'tu_coleccion' con el nombre de tu colección
+      const result     = await collection.insertOne(webpageData);
+      console.log(`Documento insertado con ID: ${result.insertedId}`);
+    } catch (err) {
+      console.error('Error al conectar a MongoDB:', err);
+    } finally {
+      await client.close();
+    }
+
   } catch (err) {
     console.log(`Error: ${err.message}`);
+    // Eliminar el screenshot si no se puede insertar en MongoDB
+    if (screenshotPath) {
+      const fs = require('fs');
+      fs.unlink(screenshotPath, (unlinkError) => {
+        if (unlinkError) {
+          console.error('Error al eliminar el screenshot:', unlinkError);
+        } else {
+          console.log('Screenshot eliminado con éxito.');
+        }
+      });
+    }
   } finally {
+    await page.close();
     await browser.close();
-    console.log(`Screenshot de ${sitio} has been captured successfully`);
   }
-  const pageTitle = await page.title();
-  const pageDescription = await page.$eval('meta[name="description"]', (element) =>
-    element.getAttribute('content')
-  );
-
-  const webpageData = {
-    title: pageTitle,
-    url: webUrl,
-    content: pageDescription,
-    screenshotPath: screenshotPath
-  };
-  
-  const uri = 'mongodb://localhost:27017'; // URI de conexión a tu servidor MongoDB
-  const client = new MongoClient(uri, { });
-  
-  try {
-    await client.connect();
-    const database   = client.db('berenjenawebs'); // Reemplaza 'tu_basededatos' con el nombre de tu base de datos
-    const collection = database.collection('webs'); // Reemplaza 'tu_coleccion' con el nombre de tu colección
-    const result     = await collection.insertOne(webpageData);
-    console.log(`Documento insertado con ID: ${result.insertedId}`);
-  } catch (err) {
-    console.error('Error al conectar a MongoDB:', err);
-  } finally {
-    await client.close();
-  }
-
 }
 
 async function existingWebpageF(webUrl) {
@@ -117,21 +138,23 @@ async function existingWebpageF(webUrl) {
   }
   
   let webpageExists = !!existingWebpage;
-  console.log("saraza4", existingWebpage, webpageExists);
   return webpageExists;
 }
 
 //cron.schedule('* * * * *', () => {
-  //console.log("Imprimiendo el cron...");
-  sitiosWeb.forEach(async (sitio, indice) => {
-    console.log(`Analizar el sitio: ${sitio}`);
+async function main() {
+  for (const sitio of sitiosWeb) {
+    console.log('%c-------------------------', 'color: red; font-size: larger');
+    console.log(`%cAnalizar el sitio: ${sitio}`, 'color: red; font-size: larger');
     let existingWebpage = await existingWebpageF(sitio);
     console.log(`BIEN, EXISTE EN LA BASE? : ${existingWebpage}`);
     if (existingWebpage == false) {
       console.log(`BIEN, NO EXISTE EN NUESTRA BASE DE DATOS: ${sitio}`);
-      await capturarInformacionSitio(sitio, indice);
+      await capturarInformacionSitio(sitio, sitiosWeb.indexOf(sitio));
     } else {
       console.log(`YA EXISTE EN LA BASE: ${existingWebpage}`);
     }
-  });
+  }
+}
+main();
 //});
