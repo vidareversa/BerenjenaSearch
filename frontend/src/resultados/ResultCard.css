@@ -25,11 +25,13 @@
 .result-title {
   font-size: 0.9rem;
   margin: 0;
+  filter: blur(4px); /* Ajusta el valor de blur según sea necesario para aumentar o disminuir el efecto de desenfoque */
 }
 
 .result-description {
   margin: 10px;
   flex: 1;
+  filter: blur(4px); /* Ajusta el valor de blur según sea necesario para aumentar o disminuir el efecto de desenfoque */
 }
 
 .result-url {
@@ -42,4 +44,5 @@
   height: auto; /* Para mantener la relación de aspecto original */
   margin-right: 20px; /* Espacio entre la imagen y los detalles */
   margin-bottom: 25px;
+  filter: blur(4px); /* Ajusta el valor de blur según sea necesario para aumentar o disminuir el efecto de desenfoque */
 }

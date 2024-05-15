@@ -28,9 +28,10 @@ function Buscador({ onSearch }) {
   };
   
   return (
-    <div className="buscador-container">
+    <div className={`buscador-container ${resultado ? 'show-results' : ''}`}>
       <div className='header'>
-        <img src={imagePath} /><h1>Berenjena Search</h1>
+        <img src={imagePath} alt="Logo" />
+        <h1>Berenjena Search</h1>
       </div>
       <div className='search-input-container'>
         <input

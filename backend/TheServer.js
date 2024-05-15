@@ -10,16 +10,20 @@ app.use(express.json());
 
 const { MongoClient } = require('mongodb');
 const uri = 'mongodb://localhost:27017'; // Reemplaza con tu URI de MongoDB
-const client = new MongoClient(uri, { useUnifiedTopology: true });
+const client = new MongoClient(uri, { useUnifiedTopology: false });
 
 //-------------------------------------------------//
-// Ruta para obtener los datos de la base de datos
+// Ruta para obtener los datos de la base de datos simulado
 app.get('/api/webdata', async (req, res) => {
+
+  console.log('Cabeceras de la solicitud: ');
+  
   try {
     await client.connect();
     const database    = client.db('berenjena'); // Reemplaza con el nombre de tu base de datos
     const collection  = database.collection('web'); // Reemplaza con el nombre de tu colección
     //const webData     = await collection.find({}).toArray();
+    console.log(collection);
     const searchString = req.query.busqueda;
     const webData = await collection.find({
       $or: [
@@ -38,6 +42,35 @@ app.get('/api/webdata', async (req, res) => {
 });
 //-------------------------------------------------//
 
+//-------------------------------------------------//
+// Ruta para obtener los datos
+app.get('/api/webdatav2', async (req, res) => {
+  console.log('Cabeceras de la solicitud: ');
+  try {
+    await client.connect();
+    const database    = client.db('berenjena'); // Reemplaza con el nombre de tu base de datos
+    const collection  = database.collection('web'); // Reemplaza con el nombre de tu colección
+    //const webData     = await collection.find({}).toArray();
+    console.log(collection);
+    const searchString = req.query.busqueda;
+    const webData = await collection.find({
+      $or: [
+        { content: { $regex: searchString, $options: 'i' } },
+        { title: { $regex: searchString, $options: 'i' } },
+        { url: { $regex: searchString, $options: 'i' } }
+      ]
+    }).toArray();
+    res.json(webData);
+    
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener datos de la base de datos: '+error });
+  } finally {
+    await client.close();
+  }
+});
+//-------------------------------------------------//
+
+/*
 app.get('/search', async (req, res) => {
   //const { query } = req.query;
   try {
@@ -59,7 +92,7 @@ app.get('/search', async (req, res) => {
     res.status(500).send('Error en la búsqueda.'+error);
   }
 });
-
+*/
 
 app.get('/', async (req, res) => {
   try {

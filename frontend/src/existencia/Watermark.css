@@ -1,11 +1,11 @@
 .watermark {
     position: absolute;
-    bottom: 25px;
-    right: 0;
+    top: 150px;
+    left: 0;
     transform: rotate(323deg);
     transform-origin: 0 0;
     opacity: 0.1;
-    font-size: 45px;
+    font-size: 20px;
     font-weight: bold;
     color: rgb(114 114 114 / 70%);
     pointer-events: none;

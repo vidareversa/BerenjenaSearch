@@ -4,7 +4,7 @@ import './Watermark.css';
 const Watermark = () => {
   return (
     <div className="watermark">
-      La vida es muy extraña
+      Made in Cosquín, Argentina
     </div>
   );
 };

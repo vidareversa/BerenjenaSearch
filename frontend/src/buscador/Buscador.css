@@ -92,3 +92,12 @@
   }
 
   
+/* Movimientos post-busquedas */
+.buscador-container {
+  position: relative;
+}
+
+.buscador-container.show-results {
+
+  margin-top: 10px;
+}

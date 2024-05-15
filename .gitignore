@@ -1,5 +1,6 @@
 # Backend files
 backend/node_modules/
+backend/screenshots/
 backend/build/
 backend/dist/
 backend/coverage/
