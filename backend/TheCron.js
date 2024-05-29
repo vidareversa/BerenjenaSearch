@@ -42,7 +42,6 @@ const sitiosWeb = [
   'https://www.linkedin.com',
   'https://www.lavoz.com.ar',
   'https://www.mercadopago.com.ar',
-  'https://www.notitimba.com',
   'https://www.cloud.afip.gob.ar',
   'https://www.losandes.com.ar',
   'https://www.pinterest.com',
@@ -52,7 +51,6 @@ const sitiosWeb = [
   'https://www.openai.com',
   'https://www.stripchat.com',
   'https://www.weather.com',
-  'https://www.clarosva.com',
   'https://www.bancainternet.com.ar',
   'https://www.baenegocios.com'
 ];
